@@ -44,7 +44,7 @@ You can use push_api as a dependency in your rebar.config:
       <<"658a936c587f3645876358e9723a48733d587658c3658793b587937a598b3538">>,
       Message,
       #{?APNS_TOPIC => <<"my.apns.topic">>, ?APNS_ID => <<"11111111-2222-3333-4444-555555555555">>}
-  )
+    )
 
 ### How to start gcm:
     Config = #{
