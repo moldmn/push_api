@@ -7,7 +7,7 @@ This software provides an Erlang client for [`Google Cloud Messaging`](http://de
 You can use push_api as a dependency in your rebar.config:
 
     {deps , [
-        {gcm, ".*", {git, "https://github.com/moldmn/push_api.git", {branch, "master"}}}
+        {push_api, ".*", {git, "https://github.com/moldmn/push_api.git", {branch, "master"}}}
     ]}.
 
 ### How to start apns:
@@ -68,3 +68,7 @@ You can use push_api as a dependency in your rebar.config:
       [<<"nlwHB8v1ITE:APA91bHUMj7gENjpmw-n0mUPetL-Ge1tjcn_61FOU2eMt21bbEk48KAskt1-uUYYTat2gAErNneu9PHtk5mnsEgGdy__1RMv9joyormdAqiNnSdkbPnelo6BqVccggcocJTJsc5BcqSg">>],
       Message
     )
+
+### Used projects
+    https://github.com/inaka/apns4erl.git
+    https://github.com/pdincau/gcm-erlang.git
