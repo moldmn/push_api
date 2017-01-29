@@ -1,0 +1,15 @@
+{application, push_api, [
+  {description, "Apple and GCM Push Notification services in Erlang"},
+  {vsn, "1.0.0"},
+  {id, "push_api"},
+  {registered, []},
+  {applications, [
+    kernel,
+    stdlib,
+    gun,
+    inets
+  ]},
+  {modules, []},
+  {mod, {push_api_app, []}},
+  {maintainers,["moldmn"]}
+]}.
