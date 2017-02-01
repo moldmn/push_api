@@ -28,8 +28,6 @@
         , name/1
         , host/1
         , port/1
-        , certfile/1
-        , keyfile/1
         , gun_connection/1
         ]).
 
@@ -195,14 +193,6 @@ host(#{apple_host := Host}) ->
 port(#{apple_port := Port}) ->
   Port.
 
--spec certfile(connection()) -> path().
-certfile(#{certfile := Certfile}) ->
-  Certfile.
-
--spec keyfile(connection()) -> path().
-keyfile(#{keyfile := Keyfile}) ->
-  Keyfile.
-
 %%%===================================================================
 %%% Internal Functions
 %%%===================================================================
@@ -211,11 +201,9 @@ keyfile(#{keyfile := Keyfile}) ->
                                            , GunConnectionPid :: pid()
                                            }.
 open_gun_connection(Connection) ->
-  Certfile = certfile(Connection),
-  Keyfile = keyfile(Connection),
   Host = host(Connection),
   Port = port(Connection),
-  TransportOpts = [{certfile, Certfile}, {keyfile, Keyfile}],
+  TransportOpts = get_transport_opts(Connection),
   {ok, GunConnectionPid} = gun:open( Host
                                    , Port
                                    , #{ protocols => [http2]
@@ -250,4 +238,24 @@ get_default_config()->
     report_error_fun => fun(ApnsId,Code,Token,Error)-> error_logger:error_msg("apnsId : ~p, code: ~p, token: ~p, error: ~p~n", [ApnsId,Code,Token,Error]) end,
     info_logger_fun => fun(Format, Args)->error_logger:info_msg(Format, Args) end
   }
+.
+
+%% @private
+get_transport_opts(Map)->
+  get_transport_opts(Map,[])
+.
+get_transport_opts(#{certfile := CertFile}=Map,Result)->
+  get_transport_opts(maps:remove(certfile,Map), [{certfile, CertFile}|Result])
+;
+get_transport_opts(#{cert := CertFile}=Map,Result)->
+  get_transport_opts(maps:remove(cert,Map), [{cert, CertFile}|Result])
+;
+get_transport_opts(#{keyfile := CertFile}=Map,Result)->
+  get_transport_opts(maps:remove(keyfile,Map), [{keyfile, CertFile}|Result])
+;
+get_transport_opts(#{key := CertFile}=Map,Result)->
+  get_transport_opts(maps:remove(key,Map), [{key, CertFile}|Result])
+;
+get_transport_opts(_Map,Result)->
+  Result
 .
