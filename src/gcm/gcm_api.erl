@@ -25,7 +25,7 @@ push(Request, Key, Headers, BaseUrl) ->
   ApiKey = string:concat("key=", Key),
   try httpc:request(post, {BaseUrl, [{"Authorization", ApiKey}|Headers], "application/json", Request}, [], []) of
     {ok, {{_, 200, _}, _Headers, Body}} ->
-      Json = jsone:decode(response_to_binary(Body)),
+      Json = jsone:decode(response_to_binary(Body), [{object_format, map}]),
       %error_logger:info_msg("Result was: ~p~n", [Json]),
       {ok, Json};
     {ok, {{_, 201, _}, _Headers, _Body}} ->				% web push success result
