@@ -15,6 +15,7 @@
 -define(APNS_APS_CONTENT_AVAILABLE, 'content-available').
 -define(APNS_APS_CATEGORY,          category).
 -define(APNS_APS_THREAD_ID,         'thread-id').
+-define(APNS_APS_MUTABLE_CONTENT,   'mutable-content').
 
 % alert
 -define(APNS_ALERT_TITLE,          title).
@@ -32,7 +33,8 @@
   ?APNS_APS_SOUND => true,
   ?APNS_APS_CONTENT_AVAILABLE => true,
   ?APNS_APS_CATEGORY => true,
-  ?APNS_APS_THREAD_ID => true
+  ?APNS_APS_THREAD_ID => true,
+  ?APNS_APS_MUTABLE_CONTENT => true
 }).
 
 -define(APNS_ALERT_FIELDS, #{
