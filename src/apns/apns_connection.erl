@@ -137,8 +137,8 @@ handle_info( {'DOWN', GunMonitor, process, GunConnPid, _}
               , gun_monitor    := GunMonitor
               , connection     := Connection
               } = State) ->
-  #{info_logger_fun := InfoFun} = Connection,
-  InfoFun("apns: reconnecting ~p~n",[GunConnPid]),
+  #{info_logger_fun := InfoFun, pool_name := PoolName} = Connection,
+  InfoFun("apns worker from pool ~p: reconnecting ~p~n",[PoolName,GunConnPid]),
   {GunMonitor2, GunConnPid2} = open_gun_connection(Connection),
   {noreply, State#{gun_connection => GunConnPid2, gun_monitor => GunMonitor2}}
 ;
@@ -154,12 +154,12 @@ handle_info({gun_data,_,_,fin,Error}, #{connection := #{report_error_fun := Erro
   ErrorFun(ApnsId,Code,LastToken,ErrorMsg),
   {noreply, State}
 ;
-handle_info({gun_up,Pid,http2}, #{connection := #{info_logger_fun := InfoFun}}=State) ->
-  InfoFun("apns: connected ~p~n",[Pid]),
+handle_info({gun_up,Pid,http2}, #{connection := #{info_logger_fun := InfoFun, pool_name := PoolName}}=State) ->
+  InfoFun("apns worker from pool ~p: connected ~p~n",[PoolName,Pid]),
   {noreply, State}
 ;
-handle_info(Info, #{connection := #{info_logger_fun := InfoFun}}=State) ->
-  InfoFun("apns: receive info ~p~n",[Info]),
+handle_info(Info, #{connection := #{info_logger_fun := InfoFun, pool_name := PoolName}}=State) ->
+  InfoFun("apns worker from pool ~p: receive info ~p~n",[PoolName, Info]),
   {noreply, State}
 .
 
