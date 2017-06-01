@@ -18,6 +18,7 @@
 -spec push(regids(),message(),string()) -> {'error',any()} | {'noreply','unknown'} | {'ok',result()}.
 push(RegIds, Message, Key) ->
   Request = jsone:encode(Message#{<<"registration_ids">> => RegIds}),
+  error_logger:info_msg("regIds : ~p~n", [RegIds]),
   push(Request, Key, [], ?BASEURL).
 
 -spec push(message(), string(), headers(), string()) -> {'error',any()} | {'noreply','unknown'} | {'ok',result()} | {'ok','ok'}.
