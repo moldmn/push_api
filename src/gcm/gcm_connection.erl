@@ -93,7 +93,7 @@ do_push(_, _, _, 0) ->
   ok;
 
 do_push(RegIds, Message, #{key:=Key,info_logger_fun:=LogFun}=State, Retry) ->
-  LogFun("gcm: Sending message: ~p to reg ids: ~p retries: ~p.~n", [filter_message_params(Message,[<<"message">>, <<"chat_id">>]), RegIds, Retry]),
+  LogFun("gcm: Sending message: ~p to reg ids: ~p retries: ~p.~n", [filter_message_params(Message,[<<"message">>, <<"chat_id">>, <<"text">>, <<"name">>]), RegIds, Retry]),
   case gcm_api:push(RegIds, Message, Key) of
     {ok, GCMResult} ->
       handle_result(GCMResult, RegIds,State);
