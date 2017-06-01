@@ -170,6 +170,6 @@ get_default_config()->
 %% @private
 filter_message_params(#{data := Data} = Message, ParamList) ->
   FilteredData = maps:filter(fun(K,V) -> not lists:member(K, ParamList) end, Data),
-  Message#{data => Data};
+  Message#{data => FilteredData};
 filter_message_params(Message, ParamList) ->
   Message.
