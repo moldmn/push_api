@@ -14,7 +14,7 @@
 %% API
 -export([get_message/1]).
 
-
+-spec get_message(binary()|map())->binary().
 get_message(Message) when is_binary(Message)->
   Message
 ;

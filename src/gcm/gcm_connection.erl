@@ -92,13 +92,17 @@ code_change(_OldVsn, State, _Extra) ->
 do_push(_, _, _, 0) ->
   ok;
 
-do_push(RegIds, Message, #{key:=Key,info_logger_fun:=LogFun}=State, Retry) ->
-  LogFun("gcm: Sending message: ~p to reg ids: ~p retries: ~p.~n", [filter_message_params(Message,[<<"message">>, <<"chat_id">>, <<"text">>, <<"name">>]), RegIds, Retry]),
-  case gcm_api:push(RegIds, Message, Key) of
+do_push(RegIds, Message, #{info_logger_fun:=LogFun}=State, Retry) ->
+  LogFun("gcm: Sending message: ~p to reg ids: ~p retries: ~p.~n", [
+    filter_message_params(Message,[<<"message">>, <<"chat_id">>, <<"text">>, <<"name">>]),
+    RegIds,
+    Retry
+  ]),
+  case gcm_api:push(RegIds, Message, State) of
     {ok, GCMResult} ->
       handle_result(GCMResult, RegIds,State);
     {error, {retry, RetryAfter}} ->
-      do_backoff(RetryAfter, RegIds, Message, Retry),
+      do_backoff(RetryAfter, RegIds, Message, Retry,State),
       {error, retry};
     {error, Reason} ->
       {error, Reason}
@@ -107,13 +111,13 @@ do_push(RegIds, Message, #{key:=Key,info_logger_fun:=LogFun}=State, Retry) ->
 do_web_push(_, _, _, _, 0) ->
   ok;
 
-do_web_push(Message, #{key:=Key,info_logger_fun:=LogFun}=State, Subscription, PaddingLength, Retry) ->
+do_web_push(Message, #{info_logger_fun:=LogFun}=State, Subscription, PaddingLength, Retry) ->
   LogFun("gcm: Sending web push message: ~p to subscription: ~p retries: ~p.~n", [Message, Subscription, Retry]),
-  case gcm_api:web_push(Message, Key, Subscription, PaddingLength) of
+  case gcm_api:web_push(Message, State, Subscription, PaddingLength) of
     {ok, GCMResult} ->
       handle_result(GCMResult, [Subscription],State);
     {error, {retry, RetryAfter}} ->
-      do_backoff(RetryAfter, Subscription, Message, Retry),
+      do_backoff(RetryAfter, Subscription, Message, Retry,State),
       {error, retry};
     {error, Reason} ->
       {error, Reason}
@@ -123,21 +127,21 @@ handle_result(#{<<"results">> := Results}, RegIds, State) ->
   lists:map(fun({Result, RegId}) -> {RegId, parse(Result,RegId,State)} end, lists:zip(Results, RegIds))
 .
 
-do_backoff(RetryAfter, {_,_,_} = Subscription, Message, Retry) ->
+do_backoff(RetryAfter, {_,_,_} = Subscription, Message, Retry, #{info_logger_fun := InfoFun}) ->
   case RetryAfter of
     no_retry ->
       ok;
     _ ->
-      error_logger:info_msg("Received retry-after. Will retry: ~p times~n", [Retry-1]),
+      InfoFun("Received retry-after. Will retry: ~p times~n", [Retry-1]),
       timer:apply_after(RetryAfter * 1000, ?MODULE, web_push, [self(), Message, Subscription, Retry - 1])
   end;
 
-do_backoff(RetryAfter, RegIds, Message, Retry) ->
+do_backoff(RetryAfter, RegIds, Message, Retry, #{info_logger_fun := InfoFun}) ->
   case RetryAfter of
     no_retry ->
       ok;
     _ ->
-      error_logger:info_msg("Received retry-after. Will retry: ~p times~n", [Retry-1]),
+      InfoFun("Received retry-after. Will retry: ~p times~n", [Retry-1]),
       timer:apply_after(RetryAfter * 1000, ?MODULE, push, [self(), RegIds, Message, Retry - 1])
   end.
 
@@ -169,7 +173,7 @@ get_default_config()->
 
 %% @private
 filter_message_params(#{data := Data} = Message, ParamList) ->
-  FilteredData = maps:filter(fun(K,V) -> not lists:member(K, ParamList) end, Data),
+  FilteredData = maps:filter(fun(K,_V) -> not lists:member(K, ParamList) end, Data),
   Message#{data => FilteredData};
-filter_message_params(Message, ParamList) ->
+filter_message_params(Message, _ParamList) ->
   Message.

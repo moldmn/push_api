@@ -25,11 +25,12 @@ start() ->
 stop() ->
   ok = application:stop(push_api).
 
-
+-spec start_apns(map())->supervisor:startchild_ret().
 start_apns(#{pool_name := PoolName, pool_size := PoolSize}=Config)->
   push_api_sup:create_apns_pool(PoolName,Config, PoolSize)
 .
 
+-spec start_gcm(map())->supervisor:startchild_ret().
 start_gcm(#{pool_name := PoolName, pool_size := PoolSize}=Config)->
   push_api_sup:create_gcm_pool(PoolName, Config, PoolSize)
 .

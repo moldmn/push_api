@@ -40,8 +40,6 @@
         , code_change/3
         ]).
 
--export([send/3]).
-
 -export_type([ name/0
              , host/0
              , port/0
@@ -82,10 +80,6 @@ start_link(Connection) ->
 -spec gun_connection(name()) -> pid().
 gun_connection(ConnectionName) ->
   gen_server:call(ConnectionName, gun_connection).
-
-send(Pid, APNSID, Message)->
-  Pid ! {send, APNSID, Message}
-.
 
 %%%===================================================================
 %%% gen_server callbacks
